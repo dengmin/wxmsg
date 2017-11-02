@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>微信表情机器人</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('qr', function (code, status) {
+            console.log(code, status);
+            switch (status) {
+                case '0':
+                    document.getElementById('qr').setAttribute('src', 'https://login.weixin.qq.com/qrcode/' + code);
+                    document.getElementById('tips').innerText = '请打开微信用摄像头扫描二维码';
+                    break;
+                case '201':
+                    document.getElementById('tips').innerText = '请手机微信中确认登录';
+                    break;
+                case '200':
+                    break;
+                case 'timeout':
+                    document.getElementById('qr').setAttribute('src', '');
+                    document.getElementById('tips').innerText = '二维码过期，等待刷新';
+                    socket.emit('login');
+                    break;
+            }
+        });
+        socket.on('success', function (cookies, url, nickname) {
+            document.getElementById('qr').setAttribute('src', '');
+            document.getElementById('tips').innerText = '[' + nickname + ']已成功登录';
+            document.getElementById('panel').style.display = 'block';
+        });
+        socket.on('logout', function () {
+            document.getElementById('qr').setAttribute('src', '');
+            document.getElementById('tips').innerText = '已退出，刷新页面重新登录';
+            document.getElementById('panel').style.display = 'none';
+        });
+
+        socket.emit('login');
+    </script>
+</head>
+
+<body>
+<img id="qr" src="">
+<p id="tips">二维码加载中...</p>
+<div id="panel" style="display: none;">
+    萤火虫舞蹈工作室新店开业啦，开业活动优惠到底<br/>
+⭕活动期间新生报名可享受原价380元，现价99元的超级优惠活动（活动仅限前100个名额）<br/>
+⭕报名99特价月卡者，只要开卡当月坚持上完8个课时，没有落下课程者，可赠送一张月卡<br/>
+⭕五人同行，一人免单<br/>
+⭕活动月卡可抵用年卡免费299元<br/>
+📣📣📣📣活动时间<br/>
+2017年11月1号到2017年11月20号<br/>
+只有100个名额哦，这么优惠还不赶紧来嗨[悠闲][悠闲]<br/>
+报名咨询电话，陆老师:‭136 7719 5024 ‬五堰校区<br/>
+</div>
+</body>
+
+</html>
