@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import shelve
-import secrets
+import uuid
 import os
 from flask import Flask, request, session, render_template
 from flask_socketio import SocketIO, emit, join_room
@@ -16,7 +16,7 @@ socketio = SocketIO(app)
 @app.route('/')
 def login():
     if 'sessionID' not in session:
-        session['sessionID'] = str(secrets.randbits(256))
+        session['sessionID'] = str(uuid.uuid4())
     return render_template('index.html')
 
 bots = {}
@@ -76,6 +76,18 @@ def login():
         socketio.start_background_task(background_thread, sid=request.sid, sessionID=session['sessionID'])
 
 
+@socketio.on('logout')
+def t_logout():
+    sessionID = session.get('sessionID', None)
+    print(sessionID)
+    with bot_status_lock:
+        with shelve.open('bot_status') as bot_status:
+            bot_status[sessionID] = False
+        if sessionID in bots:
+            logger.info('%s logged out!', bots[sessionID].self.name)
+            del bots[sessionID]
+        os.remove(sessionID)
+        socketio.emit('logout', room=sessionID)
 
 class SessionDeadException(Exception):
     pass

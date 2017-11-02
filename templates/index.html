@@ -7,7 +7,6 @@
     <script type="text/javascript" charset="utf-8">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         socket.on('qr', function (code, status) {
-            console.log(code, status);
             switch (status) {
                 case '0':
                     document.getElementById('qr').setAttribute('src', 'https://login.weixin.qq.com/qrcode/' + code);
@@ -37,6 +36,10 @@
         });
 
         socket.emit('login');
+
+        function dologout(){
+            socket.emit('logout');
+        }
     </script>
 </head>
 
@@ -53,7 +56,12 @@
 2017年11月1号到2017年11月20号<br/>
 只有100个名额哦，这么优惠还不赶紧来嗨[悠闲][悠闲]<br/>
 报名咨询电话，陆老师:‭136 7719 5024 ‬五堰校区<br/>
+
+<br/>
+<a id="logout" onclick="dologout()" href="#">退出</a>
 </div>
+
+
 </body>
 
 </html>
